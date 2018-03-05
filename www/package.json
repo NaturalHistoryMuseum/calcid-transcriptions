@@ -1,0 +1,49 @@
+{
+  "name": "www",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve --open",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "bootstrap-sass": "^3.3.7",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.7",
+    "viewerjs": "^1.0.0-beta.2",
+    "vue": "^2.5.13",
+    "vue-awesome": "^2.3.5",
+    "vue-config": "^1.0.0",
+    "vue-form-generator": "^2.2.0",
+    "vue-resource": "^1.4.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.0.0-beta.2",
+    "@vue/cli-plugin-eslint": "^3.0.0-beta.2",
+    "@vue/cli-service": "^3.0.0-beta.2",
+    "vue-template-compiler": "^2.5.13"
+  },
+  "babel": {
+    "presets": [
+      "@vue/app"
+    ]
+  },
+  "eslintConfig": {
+    "root": true,
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ]
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ]
+}

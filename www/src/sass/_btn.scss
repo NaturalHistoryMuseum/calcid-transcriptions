@@ -1,0 +1,9 @@
+.btn-control{
+  padding: 3px 6px;
+  border: 1px solid darken($grey-dark, 4);
+  background: $grey;
+  .fa-icon{
+    position: relative;
+    top: 2px;
+  }
+}

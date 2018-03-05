@@ -1,0 +1,2 @@
+apistar==0.3.9
+csvkit==1.0.2

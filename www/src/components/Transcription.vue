@@ -1,23 +1,48 @@
 <template>
 
-  <div id="transcription" class="row">
+  <div id="transcription">
 
-    <div id="loading" v-if="loading">
+    <div class="row">
+      
+
+    <div id="loading" v-show="loading">
      <icon name="spinner" scale="2" class="fa-spin"></icon>
-    </div>
-    <div class="col-sm-6">
-        <image-viewer :url="url" v-on:imageLoaded="onImageLoaded"></image-viewer>
-     </div>
-    <div class="col-sm-5">
-
-                  <h1>{{ barcode }}</h1>
-                  <form v-on:submit.prevent>
-                      <transcription-form :schema="schema" :model="model" :options="formOptions"></transcription-form>
-      </form>
-
-    </div>      
-  
+   </div>
+   <div class="col-sm-6">
+    <image-viewer :url="url" v-on:imageLoaded="onImageLoaded"></image-viewer> 
   </div>
+  <div class="col-sm-5">
+
+    
+    <h1>{{ model.subject_id }}</h1>
+  
+    <div class="alert alert-danger" v-show="errorMessage">
+      <p><strong>Error!</strong> {{ errorMessage }}</p>
+    </div>  
+
+    <form v-on:submit.prevent>
+      <transcription-form :schema="schema" :model="model" :options="formOptions"></transcription-form>
+    </form>
+
+  </div>   
+
+  </div>
+  
+
+  <div class="row">
+    <div class="col-sm-11">
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped" role="progressbar" v-bind:style="{ width: progressBarWidth + '%' }">{{ stats.validated}} / {{ stats.total }} <strong>({{ percentageComplete }}%)</strong></div>
+      </div>
+    </div>      
+    <div class="col-sm-1">
+      EXCEL
+    </div>  
+  </div>   
+
+  
+</div>
+
 
 
 
@@ -35,49 +60,81 @@ export default {
       ImageViewer
   },  
   mounted: function () {
-    console.log('mounted');
-    this.loadSpecimen();
+    // console.log('mounted');
+    // this.loadSpecimen();
+    alert('mounted');
   },
   methods: {
       loadSpecimen: function() {
+          console.log("Record loaded");
           this.loading = true;
-          // this.$http.get(this.$config.api + '/not-transcribed').then(response => {
-          //         console.log("Record loaded");
-          //         this.url = response.body.record.url;
-          //         this.barcode = response.body.record.barcode;
-          //         this._id = response.body.record._id;
-          //     }, response => {
-          //       console.log('Fetch Failed');
-          // });
+          
+          this.$http.get(this.$config.api).then(response => {
+                  console.log("Record loaded");
+                  
+                  for (var i in this.model){
+                    this.model[i] = response.body.record[i]
+                  }
+                  this.stats = response.body.stats
+                  this.loading = false;
+              }, response => {
+                console.log('Fetch Failed');
+          });
       },
-      saveSpecimen: function(country) {
-          let data = {
-              country: country.toString(),
-              barcode: this.barcode,
-              url: this.url,
-          };
-          this.$http.put(this.$config.api + '/' + this._id + '/', data).then(response => {
+      saveSpecimen: function() {
+          this.loading = true;
+          let data = {};
+          for (var i in this.model){
+              data[i] = this.model[i] 
+              this.model[i] = null         
+          }
+
+          this.$http.post(this.$config.api, data).then(response => {
                   console.log('SAVED RECORD');
                   this.loadSpecimen();
               }, response => {
+                this.errorMessage = 'Sorry, there was an error saving this transcription.'
                 console.log('Save Failed');
+                this.loading = false;
           });
       },
       onSubmit: function(model) {
-          this.saveSpecimen(model.country);
+          this.saveSpecimen();
           console.log("LOAD");
       },
       onImageLoaded: function(){
         this.loading = false;
       }
-  },    
+  },
+  computed: {
+    percentageComplete: function () {
+      return Math.round(this.stats.validated / this.stats.total)
+    },
+    progressBarWidth: function () {
+      // Needs at least 10% to show the stats
+      return this.percentageComplete + 10
+    }    
+  },      
   data () {
       return {
         loading: true,
         url: 'http://www.nhm.ac.uk/services/media-store/asset/08e4e31baf6e6a1573cde76459e95311832f2644/contents/preview',
-        barcode: null,
+        errorMessage: null,
+        stats: {},
         model: {
-            type_status: null
+            type_status: null,
+            subject_id : null,
+            combidate : null,
+            endcombidate : null,
+            country : null,
+            collector1 : null,
+            collector2 : null,
+            host_insect : null,
+            host_plant : null,
+            registration_number : null,
+            is_it_a_type_specimen : null,
+            subject_catalogue_irn : null,
+            note : null,
         },
         schema: {
           groups: [
@@ -141,7 +198,7 @@ export default {
               {
                 type: "input",
                 label: "Is it a type specimen",
-                model: "Isitatypespecimen",
+                model: "is_it_a_type_specimen",
                 inputType: "text",
               },                
               {

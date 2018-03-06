@@ -4,3 +4,6 @@ node_modules
 package-lock.json
 *.sublime-project
 *.sublime-workspace
+.DS_Store
+*.egg-info
+

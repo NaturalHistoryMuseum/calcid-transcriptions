@@ -1,17 +1,15 @@
+import json
 from apistar import Include, Route
 from apistar.frameworks.wsgi import WSGIApp as App
-# from apistar.handlers import docs_urls, static_urls
+from apistar.backends import sqlalchemy_backend
+from apistar.backends.sqlalchemy_backend import Session
+
+from api.model import Base, RawTranscription
 
 
-# def welcome(name=None):
-#     if name is None:
-#         return {'message': 'Welcome to API Star!'}
-#     return {'message': 'Welcome to API Star, %s!' % name}
-
-
-def get_transcription():
-    pass
-    # if name is None:
+def get_transcription(session: Session):
+    transcription = session.query(RawTranscription).first()
+    return json.dumps(transcription)
 
 
 def create_transcription():
@@ -36,7 +34,21 @@ routes = [
     Include('/transcriptions', transcription_routes)
 ]
 
-app = App(routes=routes)
+
+# Configure database settings.
+settings = {
+    "DATABASE": {
+        "URL": "postgresql://:@localhost/mlm_transcriptions",
+        "METADATA": Base.metadata
+    }
+}
+
+app = App(
+    routes=routes,
+    settings=settings,
+    commands=sqlalchemy_backend.commands,  # Install custom commands.
+    components=sqlalchemy_backend.components  # Install custom components.
+)
 
 
 if __name__ == '__main__':

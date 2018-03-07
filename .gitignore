@@ -6,4 +6,4 @@ package-lock.json
 *.sublime-workspace
 .DS_Store
 *.egg-info
-
+specimens/

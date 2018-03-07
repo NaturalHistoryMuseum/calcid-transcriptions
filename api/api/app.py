@@ -1,62 +1,62 @@
 from wsgicors import CORS
+import io
+import csv
 
-# import sqlalchemy
-from sqlalchemy import func
+from apistar.backends.sqlalchemy_backend import Session
 
 from apistar import http
 from apistar import Include, Route, Response
 from apistar.frameworks.wsgi import WSGIApp
 from apistar.backends import sqlalchemy_backend
-from apistar.backends.sqlalchemy_backend import Session
 from apistar.components.console import PrintConsole
 
-from api.model import Base, RawTranscription, ValidatedTranscription
+
+from api import db
+from api.model import Base
+from api.response import stream_csv
 
 
 console = PrintConsole()
 
 
-def get_transcription(session: Session):
-    transcription = session.query(RawTranscription).outerjoin(
-        ValidatedTranscription).filter(ValidatedTranscription.subject_id == None).order_by(RawTranscription.subject_id).first()
-
-    return {
-        'record': transcription.as_dict(),
-        'stats': get_stats(session)
-    }
-
-
-def create_corrected_transcription(session: Session, request_data: http.RequestData):
+def create_validated_transcription(session: Session, request_data: http.RequestData):
 
     try:
-        validated_transcription = ValidatedTranscription(**request_data)
-        session.add(validated_transcription)
-        # Flush the changes to the database. This will populate the customer
-        # id.
-        session.flush()
+        db.create_validated_transcription(session, request_data)
     except Exception:
         return Response(status=500)
     return {}
 
 
-def get_stats(session: Session):
-    # select count(*) as total, count(v.subject_id) as validated from raw r
-    # left join validated v on v.subject_id = r.subject_id;
-    stats = session.query(
-        func.count(RawTranscription.subject_id).label("total"),
-        func.count(ValidatedTranscription.subject_id).label("validated")
-    ).outerjoin(
-        ValidatedTranscription).first()
+def get_unvalidated_transcription(session: Session):
+    result = db.get_unvalidated_transcription(session)
+    stats_result = db.get_validation_stats(session)
+    return {
+        'transcription': result.RawTranscription.as_dict(),
+        'stats': {
+            'total': stats_result.total,
+            'validated': stats_result.validated
+        },
+        'multimedia': result.identifier
+    }
 
-    return {'total': stats.total, 'validated': stats.validated}
+
+def export_validated_transcriptions_as_csv(session: Session):
+
+    transcriptions = db.get_all_validated_transcriptions(session)
+    headers = transcriptions[0].as_dict().keys()
+    rows = [t.as_dict().values() for t in transcriptions]
+    return stream_csv(headers, rows)
+
 
 transcription_routes = [
-    Route('/', 'GET', get_transcription),
-    Route('/stats', 'GET', get_stats),
-    Route('/', 'POST', create_corrected_transcription)
+    Route('/', 'GET', get_unvalidated_transcription),
+    Route('/export', 'GET', export_validated_transcriptions_as_csv),
+    Route('/', 'POST', create_validated_transcription)
 ]
 
 routes = [
+    # Route('/export', 'GET', ),
     Include('/transcription', transcription_routes)
 ]
 
@@ -74,7 +74,7 @@ class App(WSGIApp):
 
     def __call__(self, environ, start_response):
         cors = CORS(super().__call__, headers='*',
-                    methods='*', maxage='0', origin='*')
+                    methods='*', origin='*')
         return cors(environ, start_response)
 
 

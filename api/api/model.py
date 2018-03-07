@@ -40,3 +40,11 @@ class ValidatedTranscription(TranscriptionMixin, Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     __tablename__ = "validated"
+
+
+class Multimedia(Base):
+    subject_id = Column(ForeignKey(
+        RawTranscription.subject_id), primary_key=True)
+    identifier = Column(String)
+
+    __tablename__ = "multimedia_identifiers"

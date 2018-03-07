@@ -1,49 +1,42 @@
 <template>
 
-  <div id="transcription">
+  <div id="transcription">     
 
     <div class="row">
+
+      <div id="loading" v-show="loading">
+       <icon name="spinner" scale="2" class="fa-spin"></icon>
+      </div>  
+
+       <div class="col-sm-7">
+        <image-viewer :url="multimediaURL" v-on:imageLoaded="onImageLoaded"></image-viewer> 
+      </div>        
+
       
-
-    <div id="loading" v-show="loading">
-     <icon name="spinner" scale="2" class="fa-spin"></icon>
-   </div>
-   <div class="col-sm-6">
-    <image-viewer :url="url" v-on:imageLoaded="onImageLoaded"></image-viewer> 
-  </div>
-  <div class="col-sm-5">
-
-    
-    <h1>{{ model.subject_id }}</h1>
+      <div class="col-sm-5"> 
+          <h1>{{ model.subject_id }}</h1>
   
-    <div class="alert alert-danger" v-show="errorMessage">
-      <p><strong>Error!</strong> {{ errorMessage }}</p>
-    </div>  
+          <div class="alert alert-danger" v-show="errorMessage">
+            <p><strong>Error!</strong> {{ errorMessage }}</p>
+          </div>  
 
-    <form v-on:submit.prevent>
-      <transcription-form :schema="schema" :model="model" :options="formOptions"></transcription-form>
-    </form>
+          <form v-on:submit.prevent>
+            <transcription-form :schema="schema" :model="model" :options="formOptions"></transcription-form>
+          </form>
 
-  </div>   
+      </div>   
 
-  </div>
+    </div>
   
 
-  <div class="row">
-    <div class="col-sm-11">
-      <div class="progress">
-        <div class="progress-bar progress-bar-striped" role="progressbar" v-bind:style="{ width: progressBarWidth + '%' }">{{ stats.validated}} / {{ stats.total }} <strong>({{ percentageComplete }}%)</strong></div>
-      </div>
-    </div>      
-    <div class="col-sm-1">
-      EXCEL
-    </div>  
-  </div>   
+    <div class="row-progress">
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped progress-bar-success" role="progressbar" v-bind:style="{ width: progressBarWidth + '%' }">{{ stats.validated}} / {{ stats.total }} <strong>({{ percentageComplete }}%)</strong></div>          
+        </div>    
+    </div>   
 
   
 </div>
-
-
 
 
 </template>
@@ -59,27 +52,28 @@ export default {
       "transcription-form": VueFormGenerator.component,
       ImageViewer
   },  
-  mounted: function () {
-    // console.log('mounted');
-    // this.loadSpecimen();
-    alert('mounted');
+  created: function () {
+    console.log('mounted');
+    this.loadSpecimen();
   },
   methods: {
       loadSpecimen: function() {
-          console.log("Record loaded");
           this.loading = true;
-          
-          this.$http.get(this.$config.api).then(response => {
-                  console.log("Record loaded");
-                  
-                  for (var i in this.model){
-                    this.model[i] = response.body.record[i]
-                  }
-                  this.stats = response.body.stats
-                  this.loading = false;
-              }, response => {
-                console.log('Fetch Failed');
-          });
+          this.$http.get(this.$config.api).then((response) => {
+            for (var i in this.model){
+              this.model[i] = response.data.transcription[i]
+            }
+            this.stats = response.data.stats
+            this.multimedia = response.data.multimedia
+            this.loading = false;
+          }, (response) => {
+            console.log('Fetch Failed');
+            console.log('ERROR:' + response);
+            this.errorMessage = 'Sorry, there was an error loading the transcription. Please refresh the page.'
+            }          
+          )
+          this.loading = true;
+
       },
       saveSpecimen: function() {
           this.loading = true;
@@ -94,11 +88,11 @@ export default {
                   this.loadSpecimen();
               }, response => {
                 this.errorMessage = 'Sorry, there was an error saving this transcription.'
-                console.log('Save Failed');
+                console.log('Save Failed:' + response);
                 this.loading = false;
           });
       },
-      onSubmit: function(model) {
+      onSubmit: function() {
           this.saveSpecimen();
           console.log("LOAD");
       },
@@ -108,18 +102,22 @@ export default {
   },
   computed: {
     percentageComplete: function () {
-      return Math.round(this.stats.validated / this.stats.total)
+      return this._.round(this.stats.validated / this.stats.total, 3) * 100
     },
     progressBarWidth: function () {
+      // Needs at least 12% to show the stats text
+      return this.percentageComplete + 12
+    },
+    multimediaURL: function () {
       // Needs at least 10% to show the stats
-      return this.percentageComplete + 10
-    }    
+      return '/specimens/' + this.multimedia
+    }      
   },      
   data () {
       return {
         loading: true,
-        url: 'http://www.nhm.ac.uk/services/media-store/asset/08e4e31baf6e6a1573cde76459e95311832f2644/contents/preview',
         errorMessage: null,
+        multimedia: null,
         stats: {},
         model: {
             type_status: null,

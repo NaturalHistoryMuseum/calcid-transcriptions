@@ -218,8 +218,9 @@
     $button-space: 34px;
     $button-offset: 7px;
     #image-viewer-wrapper {
-        height: 100%;
+        height: 545px;
         position: relative;
+        margin-left: 5px;
         button{
             position: absolute;
             top: $button-offset;

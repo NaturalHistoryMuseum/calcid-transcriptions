@@ -32,6 +32,10 @@ canvas {
     a{
         color: #fff!important;
     }
+    .navbar-right{
+        margin-right: 10px;
+        margin-top: 10px;
+    }
 }
 
 h1{
@@ -66,8 +70,8 @@ h1{
 
 #loading{
     position: absolute;
-    right: 8px;
-    top: 8px;
+    right: 70px;
+    top: 11px;
     color: #fff;
 }
 
@@ -77,8 +81,33 @@ fieldset{
     margin-right: 20px;
 }
 
-.form-group{
+.container-full-width{
+    height: 100%;
+    .row{
 
+    }
+}
+
+#transcription{
+    height: 100%;
+}
+
+.row-progress{
+    position: absolute;
+    background: #ccc;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    .progress{
+        margin: 0;
+        background: #ccc;
+        .progress-bar{
+            font-size: 16px;    
+            line-height: 28px;
+        }
+        
+        height: 32px;
+    }
 }
 
 

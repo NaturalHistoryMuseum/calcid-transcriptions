@@ -1,13 +1,19 @@
 import Vue from 'vue'
 import App from './App.vue'
 import VueResource from 'vue-resource'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+import lodash from 'lodash'
+import VueLodash from 'vue-lodash'
 
 Vue.config.productionTip = false
 
-Vue.use(VueResource)
+Vue.use(VueAxios, axios)
+Vue.use(VueLodash, lodash)
 
 // Set up config
 const vueConfig = require('vue-config');
+
 Vue.use(vueConfig, require('./config.js'));
 
 // Set up fontawesome

@@ -7,7 +7,7 @@ from api.model import RawTranscription, ValidatedTranscription, Multimedia
 
 def get_unvalidated_transcription(session: Session):
     return session.query(RawTranscription, Multimedia.identifier).outerjoin(
-        ValidatedTranscription).join(Multimedia).filter(ValidatedTranscription.subject_id == None).order_by(RawTranscription.subject_id).first()
+        ValidatedTranscription).join(Multimedia).filter(ValidatedTranscription.subject_id == None).order_by(func.random()).first()
 
 
 def create_validated_transcription(session: Session, data):

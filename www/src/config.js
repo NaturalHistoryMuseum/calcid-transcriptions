@@ -1,3 +1,3 @@
 module.exports = {
-  api: 'http://mlm.local/transcription/'
+  api: 'http://127.0.0.1/transcription/'
 };

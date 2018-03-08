@@ -130,7 +130,7 @@ export default {
             host_insect : null,
             host_plant : null,
             registration_number : null,
-            is_it_a_type_specimen : null,
+            is_type : null,
             subject_catalogue_irn : null,
             note : null,
         },
@@ -194,10 +194,13 @@ export default {
               },           
 
               {
-                type: "input",
-                label: "Is it a type specimen",
-                model: "is_it_a_type_specimen",
-                inputType: "text",
+                type: "radios",
+                label: "Is it a type specimen?",
+                model: "is_type",
+                values: [
+                    {name: "Yes", value:"Type"},
+                    {name: "No", value:"NON-TYPE"},
+                ]
               },                
               {
                 type: "select",

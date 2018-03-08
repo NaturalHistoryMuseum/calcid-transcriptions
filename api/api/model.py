@@ -19,7 +19,6 @@ class TranscriptionMixin(object):
     host_insect = Column(String)
     host_plant = Column(String)
     registration_number = Column(String)
-    is_uncertainty = Column(Boolean)
     is_type = Column(String)
     subject_catalogue_irn = Column(Integer)
     note = Column(String)

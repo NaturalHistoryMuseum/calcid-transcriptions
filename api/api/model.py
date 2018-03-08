@@ -12,7 +12,7 @@ console = PrintConsole()
 
 class TranscriptionMixin(object):
     combidate = Column(String)
-    endcombidate = Column(String)
+    end_combidate = Column(String)
     country = Column(String)
     collector1 = Column(String)
     collector2 = Column(String)

@@ -1,58 +1,32 @@
 from wsgicors import CORS
-import io
-import csv
 
-from apistar.backends.sqlalchemy_backend import Session
-
-from apistar import http
-from apistar import Include, Route, Response
+from apistar import Include, Route
 from apistar.frameworks.wsgi import WSGIApp
 from apistar.backends import sqlalchemy_backend
 from apistar.components.console import PrintConsole
+from apistar import environment, typesystem
 
 
-from api import db
 from api.model import Base
-from api.response import stream_csv
+from api import routes
 
 
 console = PrintConsole()
 
 
-def create_validated_transcription(session: Session, request_data: http.RequestData):
-
-    try:
-        db.create_validated_transcription(session, request_data)
-    except Exception:
-        return Response(status=500)
-    return {}
-
-
-def get_unvalidated_transcription(session: Session):
-    result = db.get_unvalidated_transcription(session)
-    stats_result = db.get_validation_stats(session)
-    return {
-        'transcription': result.RawTranscription.as_dict(),
-        'stats': {
-            'total': stats_result.total,
-            'validated': stats_result.validated
-        },
-        'multimedia': result.identifier
+class Env(environment.Environment):
+    properties = {
+        'DEBUG': typesystem.boolean(default=False),
+        'DATABASE_URL': typesystem.string()
     }
 
-
-def export_validated_transcriptions_as_csv(session: Session):
-
-    transcriptions = db.get_all_validated_transcriptions(session)
-    headers = transcriptions[0].as_dict().keys()
-    rows = [t.as_dict().values() for t in transcriptions]
-    return stream_csv(headers, rows)
+env = Env()
 
 
 transcription_routes = [
-    Route('/', 'GET', get_unvalidated_transcription),
-    Route('/export', 'GET', export_validated_transcriptions_as_csv),
-    Route('/', 'POST', create_validated_transcription)
+    Route('/', 'GET', routes.get_unvalidated_transcription),
+    Route('/export', 'GET', routes.export_validated_transcriptions_as_csv),
+    Route('/', 'POST', routes.create_validated_transcription)
 ]
 
 routes = [
@@ -63,7 +37,7 @@ routes = [
 # Configure database settings.
 settings = {
     "DATABASE": {
-        "URL": "postgresql://:@localhost/mlm_transcriptions",
+        "URL": env['DATABASE_URL'],
         "METADATA": Base.metadata
     },
 }

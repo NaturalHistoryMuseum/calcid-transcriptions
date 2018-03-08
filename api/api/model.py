@@ -1,9 +1,13 @@
-# import json
+import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime, func, Boolean, ForeignKey
 
 
 Base = declarative_base()
+
+
+from apistar.components.console import PrintConsole
+console = PrintConsole()
 
 
 class TranscriptionMixin(object):
@@ -26,7 +30,13 @@ class TranscriptionMixin(object):
 
     @staticmethod
     def _encode_value(value):
-        return value if not value else str(value)
+        # If it's a date, format it, otherwise return string (is not None)
+        if not value:
+            return value
+        elif type(value) is datetime.datetime:
+            return value.strftime("%H:%M %d %b %Y")
+        else:
+            return str(value)
 
 
 class RawTranscription(TranscriptionMixin, Base):

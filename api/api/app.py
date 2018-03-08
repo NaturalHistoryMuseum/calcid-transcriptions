@@ -56,7 +56,6 @@ transcription_routes = [
 ]
 
 routes = [
-    # Route('/export', 'GET', ),
     Include('/transcription', transcription_routes)
 ]
 

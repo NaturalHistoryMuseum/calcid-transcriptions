@@ -23,6 +23,7 @@ class TranscriptionMixin(object):
     subject_catalogue_irn = Column(Integer)
     note = Column(String)
     type_status = Column(String)
+    gender = Column(String)
 
     def as_dict(self):
         return {c.name: self._encode_value(getattr(self, c.name)) for c in self.__table__.columns}

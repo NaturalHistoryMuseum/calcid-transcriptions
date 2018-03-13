@@ -3,15 +3,11 @@ from wsgicors import CORS
 from apistar import Include, Route
 from apistar.frameworks.wsgi import WSGIApp
 from apistar.backends import sqlalchemy_backend
-from apistar.components.console import PrintConsole
 from apistar import environment, typesystem
 
 
 from api.model import Base
 from api import routes
-
-
-console = PrintConsole()
 
 
 class Env(environment.Environment):

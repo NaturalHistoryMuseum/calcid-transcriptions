@@ -2,17 +2,21 @@
 from apistar.backends.sqlalchemy_backend import Session
 from apistar import Response
 from apistar import http
+from apistar.components.console import PrintConsole
 
 
 from api import db
 from api.response import stream_csv
 
 
-def create_validated_transcription(session: Session, request_data: http.RequestData):
+console = PrintConsole()
 
+
+def create_validated_transcription(session: Session, request_data: http.RequestData):
     try:
         db.create_validated_transcription(session, request_data)
-    except Exception:
+    except Exception as e:
+        console.echo(e)
         return Response(status=500)
     return {}
 

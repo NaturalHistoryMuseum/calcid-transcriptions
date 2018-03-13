@@ -206,8 +206,6 @@ export default {
                 type: "select",
                 label: "Type status",
                 model: "type_status",
-                // required: true,
-                // validator: VueFormGenerator.validators.required,
                 values: [
                  'Holotype',
                  'Lectotype',
@@ -217,7 +215,17 @@ export default {
                  'Type',
                  'Non-Type',
                 ]
-              },    
+              }, 
+              {
+                type: "select",
+                label: "Gender",
+                model: "gender",
+                values: [
+                 'Male',
+                 'Female',
+                 'Gynandromorph',
+                ]
+              },                  
               {
                 type: "input",
                 label: "Subject Catalogue IRN",
@@ -229,7 +237,7 @@ export default {
                 type: "TextArea",
                 label: "Note",
                 model: "note",
-                rows: 6,
+                rows: 4,
               },           
 
               {
